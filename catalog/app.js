@@ -1,8 +1,8 @@
 //https://stackoverflow.com/questions/21237105/const-in-javascript-when-to-use-it-and-is-it-necessary
 const express = require('express');
 const bodyParser = require("body-parser");
-const monhgojs = require("mongojs");
-
+const mongojs = require("mongojs");
+const db = mongojs('catalog', ['products']);
 const app = express();
 
 const port = 3000;
@@ -15,14 +15,31 @@ app.get("/", (req, res, next)=>{
 });
 
 //fetch all products
+//docs returned from the query
+//err error
 app.get("/api/v1/products", (req, res, next)=>{
-  res.send("List Products");
+  db.products.find((err, docs)=> {
+      if(err)
+      {
+          res.send(err);
+      }
+      console.log("Products Found...");
+      res.json(docs);
+  });
 });
 
 //Fetch Single Product
 //:id is the placeholder for the product_id
 app.get("/api/v1/products/:id", (req, res, next)=>{
-  res.send("Fetch product "+ req.params.id);
+  //res.send("Fetch product "+ req.params.id);
+  db.products.findOne({_id:mongojs.ObjectId(req.params.id)},(err, doc)=> {
+      if(err)
+      {
+          res.send(err);
+      }
+      console.log("Product Found...");
+      res.json(doc);
+  });
 });
 
 //Add Product
